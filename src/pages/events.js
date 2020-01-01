@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
-// import DateTimePicker from 'react-datetime-picker';
 import DateTimePicker from 'react-widgets/lib/DateTimePicker'
 import 'react-widgets/dist/css/react-widgets.css';
 import Moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
+import baseUrl from '../config' 
 
 
 class EventsPage extends Component{
@@ -11,6 +11,7 @@ class EventsPage extends Component{
     constructor(){
         
         Moment.locale();
+        require('dotenv').config()
         momentLocalizer();
         super();
         this.state = {
@@ -68,68 +69,43 @@ class EventsPage extends Component{
         let filterQuery = this.state.filter
         if (evt.target.value === "") {
             filterQuery.minAmount = null
-            
         }
         else{
-           
         filterQuery.minAmount = evt.target.value
-     
-
         }
         this.setState({filter: filterQuery})
-        
-    
 }
 
 maxFilterAmountHandler= evt=> {
     let filterQuery = this.state.filter
-
     if (evt.target.value === "") {
-    
     filterQuery.maxAmount = null
-   
     }
     else{
         filterQuery.maxAmount = evt.target.value
-
     }
     this.setState({filter: filterQuery}) 
-
 }
 
 
 filterByIdHandler= evt=>{
     let filterQuery = this.state.filter
     if (evt.target.value === "") {
-        
- 
     filterQuery._id = null
-     
     }
     else{
         filterQuery._id = evt.target.value
-
     }
     this.setState({
         filter : filterQuery})
-      
-
 }
 
-    
-
-
-     fromDateFilterHandler= date=> {
-        let filterQuery = this.state.filter
-        filterQuery.startingDate = date
-        
-         this.setState({ filter: filterQuery,
+fromDateFilterHandler= date=> {
+    let filterQuery = this.state.filter
+    filterQuery.startingDate = date
+    this.setState({ filter: filterQuery,
             isDateFilterActive: true
-       })
-   
-        console.log(this.state.filter.startingDate)
-     
-    
+       }) 
 }
 
 toDateFilterHandler =date=> {
@@ -138,53 +114,34 @@ toDateFilterHandler =date=> {
      this.setState({ filter: filterQuery,
         isDateFilterActive: true
          })
-    
-        console.log(this.state.filter.endingDate)
-      
-      
-    
 }
-    
 
-  
+async handleSorting (sortBy) {
+    await this.setState({sortingField: sortBy})
+    this.componentDidMount()
+}
 
-    async handleSorting (sortBy) {
-        await this.setState({sortingField: sortBy})
-        this.componentDidMount()
-       
-      }
-
-    async handleFilter (key,val) {
-        let filterQuery = this.state.filter
-        let approvalStatus = filterQuery.approvalStatus
-
-
-        
-       if (approvalStatus.includes(val))
-       {
+async handleFilter (val) {
+    let filterQuery = this.state.filter
+    let approvalStatus = filterQuery.approvalStatus
+    if (approvalStatus.includes(val))
+    {
         approvalStatus = approvalStatus.filter(item => item !== val)
-
-       }
-       else{
+    }
+    else
+    {
         approvalStatus.push(val)
        }
        filterQuery.approvalStatus = approvalStatus
         await this.setState({
             isApprovalFilterActive : true,
             filter: filterQuery})
-        console.log(this.state)
-        
-      
-       
       }
-
       async handleSortingOrder (order) {
         await this.setState({order: order})
         this.componentDidMount()
        
       }
-
-
     async componentDidMount(){
         this.getData()
         
@@ -228,9 +185,9 @@ toDateFilterHandler =date=> {
                 }
             `
         }
-        console.log(requestBody)
+      
 
-        const response = await fetch('http://localhost:4000/graphql',{
+        const response = await fetch(`${baseUrl}graphql`,{
                                     method : 'POST',
                                     body: JSON.stringify(requestBody),
                                     headers: {
@@ -238,7 +195,7 @@ toDateFilterHandler =date=> {
                                     }
                                 })
         const data = await response.json()
-        console.log(data.data.searchEvents)
+  
         this.setState({events : data.data.searchEvents,
             isLoading: false})      
              
@@ -268,9 +225,9 @@ toDateFilterHandler =date=> {
               }
             `
         }
-        console.log(requestBody)
+      
 
-        const response = await fetch('http://localhost:4000/graphql',{
+        const response = await fetch(`${baseUrl}graphql`,{
                                     method : 'POST',
                                     body: JSON.stringify(requestBody),
                                     headers: {
