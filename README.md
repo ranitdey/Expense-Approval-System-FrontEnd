@@ -13,6 +13,6 @@ now once the pre-requisite systems are running we can start running the frontend
 ```
     npm start 
 ```
-This will start the servr at http://localhost:3000
+This will start the server at http://localhost:3000
 
 ### Live Demo: http://35.226.21.203:5000/events
