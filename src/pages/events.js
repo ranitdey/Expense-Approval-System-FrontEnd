@@ -14,8 +14,6 @@ class EventsPage extends Component{
         momentLocalizer();
         super();
         this.state = {
-            limit : 50,
-            offset :0,
             isLoading: true,
             isFilterActive: false,
             isApprovalFilterActive : false,
