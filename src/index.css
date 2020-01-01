@@ -5,6 +5,8 @@ body {
 }
 
 
+
+
 .stamp {
   transform: rotate(12deg);
 	color: #555;
@@ -106,4 +108,14 @@ body {
   .search #price2 {
     display: inline;
     font-weight: 600;
+  }
+
+
+  .redGlow {
+    color: #ff0000;
+    text-shadow: 0 0 3px #ff0000;
+  }
+
+  .top-buffer{
+    margin-top: 10px;
   }

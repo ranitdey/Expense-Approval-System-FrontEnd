@@ -1,36 +1,154 @@
 import React, {Component} from 'react'
+// import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+import 'react-widgets/dist/css/react-widgets.css';
+import Moment from 'moment';
+import momentLocalizer from 'react-widgets-moment';
+
 
 class EventsPage extends Component{
    
     constructor(){
+        
+        Moment.locale();
+        momentLocalizer();
         super();
         this.state = {
+            limit : 50,
+            offset :0,
             isLoading: true,
-            isFilterActive : false,
+            isFilterActive: false,
+            isApprovalFilterActive : false,
+            isDateFilterActive : false,
             events: null,
             error: null,
             filter : {
                 _id: null,
                 uuid: null,
                 description: null,
-                created_at: null,
-                amount: null,
+                startingDate: null,
+                endingDate: null,
+                minAmount: null,
+                maxAmount: null,
                 currency: null,
-                approvalStatus: []
+                approvalStatus:  ["Approved","Declined","Pending"],
+               
             },
             defaultFilter : {
                 _id: null,
                 uuid: null,
                 description: null,
-                created_at: null,
-                amount: null,
+                startingDate: null,
+                endingDate: null,
+                minAmount: null,
+                maxAmount: null,
                 currency: null,
-                approvalStatus: ["Approved","Declined","Pending"]
+                approvalStatus: ["Approved","Declined","Pending"],
+    
             },
             sortingField : "approvalStatus",
-            order : -1
+            order : -1,
+           
+            
         };
+       
+            
+          
     }
+
+    async applyFilter(){
+        
+       
+        await this.setState({isFilterActive: !this.state.isFilterActive,
+          
+        }) 
+        this.componentDidMount()
+
+    }
+
+    minFilterAmountHandler= evt=> {
+        let filterQuery = this.state.filter
+        if (evt.target.value === "") {
+            filterQuery.minAmount = null
+            
+        }
+        else{
+           
+        filterQuery.minAmount = evt.target.value
+     
+
+        }
+        this.setState({filter: filterQuery})
+        
+    
+}
+
+maxFilterAmountHandler= evt=> {
+    let filterQuery = this.state.filter
+
+    if (evt.target.value === "") {
+    
+    filterQuery.maxAmount = null
+   
+    }
+    else{
+        filterQuery.maxAmount = evt.target.value
+
+    }
+    this.setState({filter: filterQuery}) 
+
+}
+
+
+filterByIdHandler= evt=>{
+    let filterQuery = this.state.filter
+    if (evt.target.value === "") {
+        
+ 
+    filterQuery._id = null
+     
+    }
+    else{
+        filterQuery._id = evt.target.value
+
+    }
+    this.setState({
+        filter : filterQuery})
+      
+
+}
+
+    
+
+
+     fromDateFilterHandler= date=> {
+        let filterQuery = this.state.filter
+        filterQuery.startingDate = date
+        
+         this.setState({ filter: filterQuery,
+            isDateFilterActive: true
+       })
+   
+        console.log(this.state.filter.startingDate)
+     
+    
+}
+
+toDateFilterHandler =date=> {
+    let filterQuery = this.state.filter
+    filterQuery.endingDate = date
+     this.setState({ filter: filterQuery,
+        isDateFilterActive: true
+         })
+    
+        console.log(this.state.filter.endingDate)
+      
+      
+    
+}
+    
+
+  
 
     async handleSorting (sortBy) {
         await this.setState({sortingField: sortBy})
@@ -54,11 +172,11 @@ class EventsPage extends Component{
        }
        filterQuery.approvalStatus = approvalStatus
         await this.setState({
-            isFilterActive : true,
+            isApprovalFilterActive : true,
             filter: filterQuery})
         console.log(this.state)
         
-        this.componentDidMount()
+      
        
       }
 
@@ -77,7 +195,7 @@ class EventsPage extends Component{
     getData =async () =>{
         var filterQuery = {}
 
-        if(this.state.isFilterActive)
+        if(this.state.isFilterActive) 
         {
             filterQuery = this.state.filter
         }
@@ -90,8 +208,12 @@ class EventsPage extends Component{
             query: `
             query{
                 searchEvents(filter:{approvalStatus:${JSON.stringify(filterQuery.approvalStatus)},
-                currency :${JSON.stringify(filterQuery.currency)},
-                amount: ${JSON.stringify(filterQuery.amount)}},sort:{field:"${this.state.sortingField}",order:${this.state.order}}){
+                startingDate : "${filterQuery.startingDate}",
+                endingDate : "${filterQuery.endingDate}",
+                minAmount : ${filterQuery.minAmount},
+                maxAmount : ${filterQuery.maxAmount},
+                _id : "${filterQuery._id}",
+                currency :${JSON.stringify(filterQuery.currency)}},sort:{field:"${this.state.sortingField}",order:${this.state.order}}){
                   _id
                   uuid
                   employee{
@@ -178,41 +300,53 @@ class EventsPage extends Component{
 
                              
                         <div class="col-md-3">
-                        <h2 class="grid-title"><i class="fa fa-filter"></i> Filters</h2>
+                        <h2 class="grid-title"><i class={this.state.isFilterActive ? "fa fa-filter redGlow" : "fa fa-filter" }></i> Filters</h2>
                  
                         
                 
-                        <h4>By category:</h4>
+                        <h4>By Category:</h4>
                         
                         <div class="checkbox">
-                            <label><input type="checkbox" class="icheck" onChange={() => {
-                                this.state.isLoading = true
+                            <label><input type="checkbox"   class="icheck" onChange={() => {
+                             
                                 this.handleFilter("approvalStatus","Approved")
-                            }}/> Approved</label>
+                            }}
+                            disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked /> Approved</label>
                         </div>
                         <div class="checkbox">
-                            <label><input type="checkbox" class="icheck" onChange={() => {
-                                this.state.isLoading = true
+                            <label><input type="checkbox"  class="icheck" onChange={() => {
+                     
                                 this.handleFilter("approvalStatus","Declined")
-                            }}/> Declined</label>
+                            }}
+                            disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked/> Declined</label>
                         </div>
                         <div class="checkbox">
-                            <label><input type="checkbox" class="icheck" onChange={() => {
-                                this.state.isLoading = true
+                            <label><input type="checkbox"  class="icheck" onChange={() => {
+                    
                                 this.handleFilter("approvalStatus","Pending")
-                            }}/> Pending</label>
+                            }}
+                            disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked/> Pending</label>
                         </div>
 
                 
                         <div class="padding"></div>
 
-                        <h4>By currency</h4>
+                        <h4>By Amount:</h4>
                         
                         <div class="input-group" >
-                            <input type="text" class="form-control"/> 
+                        <div class="row">
+                        <div class="col">
+                          <input type="text" class="form-control" placeholder="From" onChange={this.minFilterAmountHandler} 
+                          disabled={ this.state.isFilterActive ? "disable" : "" }/>
+                        </div>
+                        <div class="col">
+                          <input type="text" class="form-control" placeholder="To" onChange={this.maxFilterAmountHandler}
+                          disabled={ this.state.isFilterActive ? "disable" : "" }/>
+                        </div>
+                      </div>
                            
                             <span class="input-group-btn">
-                            <button type="button" class="btn btn-secondary">Add</button>
+                           
                             </span>
 
                            
@@ -221,42 +355,64 @@ class EventsPage extends Component{
                         
                         <div class="padding"></div>
                     
-                        <h4>By date:</h4>
-                        From
-                        <div class="input-group date form_date" data-date="2014-06-14T05:25:07Z" data-date-format="dd-mm-yyyy" data-link-field="dtp_input1">
-                            <input type="text" class="form-control"/> 
-                            <span class="input-group-addon bg-blue"><i class="fa fa-th"></i></span>
-                        </div>
-                        <input type="hidden" id="dtp_input1" value=""/>
+                        <h4 className="top-buffer">By Date:</h4>
                         
-                        To
-                        <div class="input-group date form_date" data-date="2014-06-14T05:25:07Z" data-date-format="dd-mm-yyyy" data-link-field="dtp_input2">
-                            <input type="text" class="form-control"/>
-                            <span class="input-group-addon bg-blue"><i class="fa fa-th"></i></span>
+                 
+                   
+                        <div>
+                        <DateTimePicker className='form-group' placeholder="From"
+                        
+                        onSelect={value => this.fromDateFilterHandler(Moment.utc(value).toISOString())}
+                        disabled={ this.state.isFilterActive ? "disable" : "" }
+                        />
                         </div>
-                        <input type="hidden" id="dtp_input2" value=""/>
+                  
+                        <div>
+                        <DateTimePicker className='form-group' placeholder="To"
+                       
+                        onSelect={value => this.toDateFilterHandler( Moment.utc(value).toISOString())}
+                        disabled={ this.state.isFilterActive ? "disable" : "" }
+                        />
+                        </div>
+
+                        <div class="padding"></div>
+                    
+                        <h4 className="top-buffer">By Expense ID:</h4>
+                        
+                      
+                   
+                        <div>
+                        <input type="text" class="form-control" placeholder="Expense Id" onChange={this.filterByIdHandler} 
+                          disabled={ this.state.isFilterActive ? "disable" : "" }/>
+                        </div>
+                       
+
+
+
+                        
+                       
                
                         
-                        <div class="padding"></div>
                         
                    
-                        <h4>By price:</h4>
-                        Between <div id="price1">$300</div> to <div id="price2">$800</div>
-                        <div class="slider-primary">
-                        <div class="slider slider-horizontal" style={{width: "152px"}}>
-                        <div class="slider-track"><div class="slider-selection" style={{left: "30%", width: "50%"}}>
-                        </div><div class="slider-handle round" style={{left: "30%"}}>
-                        </div><div class="slider-handle round" style={{left: "80%"}}>
-                        </div></div><div class="tooltip top hide" style={{top: "-30px", left: "50.1px"}}>
-                        <div class="tooltip-arrow"></div><div class="tooltip-inner">300 : 800</div>
+                        
+                        
                             
-                            </div>
-                            <input type="text" class="slider" value="" data-slider-min="0" data-slider-max="1000" data-slider-step="1" data-slider-value="[300,800]" data-slider-tooltip="hide"/>
-                            
-                            </div>
-                        </div>
+                        <div class="form-group top-buffer">
+                    
+
+                        <button type="button" class={this.state.isFilterActive ? "btn btn-danger" : "btn btn-primary " }onClick={() => {
+                            this.state.isLoading = true
+                            this.applyFilter()
+                        }}>{this.state.isFilterActive ? "Reset" : "Apply"}</button>
+                    </div>
+                        
+
+                       
             
                     </div>
+                    
+                    
       
           
                     <div class="col-md-9">
@@ -266,12 +422,7 @@ class EventsPage extends Component{
                       
 					
 			
-						<div class="input-group">
-							<input type="text" class="form-control" placeholder="Search by Expense ID or Name"/>
-							<span class="input-group-btn">
-								<button class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
-							</span>
-						</div>
+
                     
                       
                         
@@ -365,7 +516,7 @@ class EventsPage extends Component{
           
           <div class="card text-center shadow-lg bg-white">
               <div class="card-header">
-              Expence ID:  {item.uuid}
+              Expence ID:  {item._id}
               </div>
               <div class="card-body">
                   <h5 class="card-title"> {item.employee.first_name}  {item.employee.last_name}</h5>
@@ -374,19 +525,59 @@ class EventsPage extends Component{
                       <p class="card-text">Amount : {item.amount}</p>
                       <p class="card-text">Currency : {item.currency}</p>
                       <p className="App-clock">
-                       Created at: {item.created_at}.
+                       Created at: {Moment(item.created_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}.
                       </p>
                       <div>
                           {item.approvalStatus === 'Pending' ? 
                           (<div>
-                          <button class="btn btn-outline-success mr-3" type="button" onClick={() => {
-                              this.state.isLoading = true
-                              this.updateData(item._id,"Approved")
-                          }}>Approve</button>  
-                           <button class="btn btn-outline-danger mr-3" type="button" onClick={() =>{ 
-                              this.state.isLoading = true
-                               this.updateData(item._id,"Declined")}
-                              }>Decline</button>
+                          <button class="btn btn-outline-success mr-3" type="button" data-toggle="modal" data-target="#approveModal" >Approve</button>  
+
+                          <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="approveModalLabel">Confirm your action!</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                         Do you want to approve the expense?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal" onClick={() => {
+                                            this.state.isLoading = true
+                                            this.updateData(item._id,"Approved")
+                                        }}>Proceed</button>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                           <button class="btn btn-outline-danger mr-3" type="button" data-toggle="modal" data-target="#declineModal"  >Decline</button>
+                           <div class="modal fade" id="declineModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="declineModalLabel">Confirm your action!</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                   Do you want to decline the expense?
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary" data-dismiss="modal" onClick={() =>{ 
+                                    this.state.isLoading = true
+                                     this.updateData(item._id,"Declined")}
+                                    }>Proceed</button>
+                                </div>
+                              </div>
+                            </div>
+                            </div>
+                          
                           </div>
                           )
                           : 
@@ -416,15 +607,7 @@ class EventsPage extends Component{
                             </tbody></table>
                         </div>
                 
-                        <ul class="pagination">
-                            <li class="disabled"><a href="#">«</a></li>
-                            <li class="active"><a href="#">1</a></li>
-                            <li><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">4</a></li>
-                            <li><a href="#">5</a></li>
-                            <li><a href="#">»</a></li>
-                        </ul>
+                        
              
                         </div>
     
@@ -435,8 +618,7 @@ class EventsPage extends Component{
                   </div>
                   </div>
                   </div>
-                  
-        </div>
+                  </div>
 
 
 
