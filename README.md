@@ -25,8 +25,8 @@ This will start the server at http://localhost:3000
 
 2. Approve or decline events
 
-![Events approval](./screenshots/explore.png?raw=true "Events approval")
+![Events approval](./screenshots/approve-decline.png?raw=true "Events approval")
 
 2. Filter events based on different fields
 
-![Filter](./screenshots/explore.png?raw=true "Filter")
+![Filter](./screenshots/filter.png?raw=true "Filter")
