@@ -16,3 +16,17 @@ now once the pre-requisite systems are running we can start running the frontend
 This will start the server at http://localhost:3000
 
 ### Live Demo: http://35.226.21.203:5000/events
+
+## Use cases:
+
+1. Explore all the expense events
+
+![Explore events](./screenshots/explore.png?raw=true "Explore events")
+
+2. Approve or decline events
+
+![Events approval](./screenshots/explore.png?raw=true "Events approval")
+
+2. Filter events based on different fields
+
+![Filter](./screenshots/explore.png?raw=true "Filter")
