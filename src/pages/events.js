@@ -11,7 +11,6 @@ class EventsPage extends Component{
     constructor(){
         
         Moment.locale();
-        require('dotenv').config()
         momentLocalizer();
         super();
         this.state = {
@@ -122,6 +121,7 @@ async handleSorting (sortBy) {
 }
 
 async handleFilter (val) {
+  
     let filterQuery = this.state.filter
     let approvalStatus = filterQuery.approvalStatus
     if (approvalStatus.includes(val))
@@ -136,6 +136,7 @@ async handleFilter (val) {
         await this.setState({
             isApprovalFilterActive : true,
             filter: filterQuery})
+    
       }
       async handleSortingOrder (order) {
         await this.setState({order: order})
@@ -264,21 +265,21 @@ async handleFilter (val) {
                         <div class="checkbox">
                             <label><input type="checkbox"   class="icheck" onChange={() => {
                              
-                                this.handleFilter("approvalStatus","Approved")
+                                this.handleFilter("Approved")
                             }}
                             disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked /> Approved</label>
                         </div>
                         <div class="checkbox">
                             <label><input type="checkbox"  class="icheck" onChange={() => {
                      
-                                this.handleFilter("approvalStatus","Declined")
+                                this.handleFilter("Declined")
                             }}
                             disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked/> Declined</label>
                         </div>
                         <div class="checkbox">
                             <label><input type="checkbox"  class="icheck" onChange={() => {
                     
-                                this.handleFilter("approvalStatus","Pending")
+                                this.handleFilter("Pending")
                             }}
                             disabled={ this.state.isFilterActive ? "disable" : "" } defaultChecked/> Pending</label>
                         </div>
